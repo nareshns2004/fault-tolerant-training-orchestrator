@@ -1,0 +1,5 @@
+# Copy to configs/hosts.local.yaml (gitignored) and list the ONLY hosts faultlab may act on.
+# Keep in sync with the manual section of docs/ENVIRONMENT.md. Empty or missing = deny all.
+hosts:
+  - node-a.example
+  - node-b.example

@@ -1,0 +1,104 @@
+[build-system]
+requires = ["hatchling>=1.25"]
+build-backend = "hatchling.build"
+
+[project]
+name = "goodput"
+version = "0.0.1"
+description = "Cross-layer fault attribution and minimal-blast-radius recovery for multi-node LLM training."
+readme = "README.md"
+license = "Apache-2.0"
+license-files = ["LICENSE"]
+requires-python = ">=3.11"
+authors = [{ name = "goodput contributors" }]
+classifiers = [
+    "Development Status :: 1 - Planning",
+    "Intended Audience :: Science/Research",
+    "Operating System :: POSIX :: Linux",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: System :: Distributed Computing",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Typing :: Typed",
+]
+# Core stays CPU-only and light: the controller, correlator, classifier, policy and
+# schemas must be importable and testable on a laptop without torch or CUDA.
+dependencies = [
+    "pydantic>=2.7,<3",
+    "pyyaml>=6.0",
+]
+
+[project.optional-dependencies]
+# Rank-side hooks, checkpoint manager and workload. Pin torch/torchtitan per
+# docs/ENVIRONMENT.md once the target cluster is fixed (ADR-0001).
+train = ["torch>=2.5"]
+# Node-agent GPU telemetry. DCGM Python bindings ship with the DCGM install, not PyPI.
+agent = ["nvidia-ml-py>=12"]
+bench = ["numpy>=1.26", "pandas>=2.2", "matplotlib>=3.8"]
+dev = [
+    "pytest>=8",
+    "pytest-cov>=5",
+    "ruff>=0.6",
+    "mypy>=1.11",
+    "types-PyYAML",
+    "pre-commit>=3.7",
+]
+
+[project.scripts]
+goodput = "goodput.cli:main"
+faultlab = "faultlab.cli:main"
+
+[tool.hatch.build.targets.wheel]
+# Three packages, one distribution. Import boundaries are enforced by
+# tests/unit/test_import_boundaries.py (see ADR-0004).
+packages = ["goodput", "faultlab", "bench"]
+exclude = ["bench/results", "bench/scenarios", "faultlab/scenarios", "faultlab/interposer"]
+
+# ---------------------------------------------------------------------------- ruff
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+extend-exclude = ["bench/results"]
+
+[tool.ruff.lint]
+select = [
+    "E", "W", "F",   # pycodestyle, pyflakes
+    "I",             # isort
+    "B",             # bugbear
+    "UP",            # pyupgrade
+    "SIM",           # simplify
+    "RUF",
+    "T20",           # no print() — structured logs only (CLAUDE.md conventions)
+    "DTZ",           # no naive datetimes — timestamps are UTC epoch-ns or monotonic
+    "PTH",           # pathlib
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["T20"]
+"scripts/**" = ["T20"]
+
+# ---------------------------------------------------------------------------- mypy
+[tool.mypy]
+python_version = "3.11"
+strict = true
+packages = ["goodput", "faultlab", "bench"]
+plugins = ["pydantic.mypy"]
+warn_unreachable = true
+
+[[tool.mypy.overrides]]
+module = ["torch.*", "pynvml.*", "dcgm_structs.*", "pydcgm.*"]
+ignore_missing_imports = true
+
+# ---------------------------------------------------------------------------- pytest
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-ra --strict-markers -m 'not gpu and not multinode'"
+markers = [
+    "gpu: needs >=1 NVIDIA GPU with NCCL (run via `make test-gpu`)",
+    "multinode: needs >=2 nodes on the allowlist in docs/ENVIRONMENT.md",
+]
+filterwarnings = ["error"]
+
+[tool.coverage.run]
+source = ["goodput", "faultlab", "bench"]
+branch = true
