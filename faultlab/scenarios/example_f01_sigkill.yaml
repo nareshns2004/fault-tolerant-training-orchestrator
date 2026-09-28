@@ -1,0 +1,11 @@
+# Example only — validate with: faultlab validate faultlab/scenarios/example_f01_sigkill.yaml
+schema_v: 1
+id: example-f01-sigkill
+description: >
+  SIGKILL one randomly chosen rank at step 200. Used for the M1 baseline MTTR trials.
+seed: 1234
+faults:
+  - fault_id: F01
+    target: { random: true }
+    trigger: { kind: step, step: 200 }
+    revert_timeout_s: 600      # nothing to revert for SIGKILL; watchdog still bounds the trial
