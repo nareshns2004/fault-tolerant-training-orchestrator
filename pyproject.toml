@@ -37,7 +37,7 @@ Changelog = "https://github.com/nareshns2004/fault-tolerant-training-orchestrato
 [project.optional-dependencies]
 # Rank-side hooks, checkpoint manager and workload. Pin torch/torchtitan per
 # docs/ENVIRONMENT.md once the target cluster is fixed (ADR-0001).
-train = ["torch>=2.5"]
+train = ["torch>=2.15.0"]
 # Node-agent GPU telemetry. DCGM Python bindings ship with the DCGM install, not PyPI.
 agent = ["nvidia-ml-py>=12"]
 bench = ["numpy>=1.26", "pandas>=2.2", "matplotlib>=3.8"]
