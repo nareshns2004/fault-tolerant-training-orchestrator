@@ -3,9 +3,10 @@
 ## Reporting a vulnerability
 
 Please **do not** open a public issue. Report privately through GitHub's
-"Report a vulnerability" (private security advisory) on this repository. If that isn't
-available, email the maintainer at **TODO: maintainer contact**. We aim to acknowledge
-reports within 7 days.
+[private vulnerability reporting](https://github.com/nareshns2004/fault-tolerant-training-orchestrator/security/advisories/new)
+on this repository. We aim to acknowledge reports within 7 days.
+
+Supported versions: the project is pre-release; only the `main` branch receives fixes.
 
 ## Safety model for fault injection
 

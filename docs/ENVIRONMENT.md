@@ -1,8 +1,8 @@
 # Environment — goodput
 
-## Manual section (Naresh fills before any hardware run)
+## Manual section (a maintainer fills this before any hardware run)
 
-- Host allowlist (hostnames Claude Code may act on):
+- Host allowlist (the only hostnames faultlab and automation may act on):
   - TODO
   - Machine-readable copy for faultlab: `configs/hosts.local.yaml` (gitignored; format in
     `configs/hosts.example.yaml`). Keep the two in sync; faultlab reads only the YAML.

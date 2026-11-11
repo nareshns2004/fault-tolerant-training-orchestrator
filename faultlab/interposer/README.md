@@ -1,6 +1,6 @@
 # NCCL/CUDA LD_PRELOAD interposer (C17)
 
-`[OWNER-CORE]` M2: Naresh writes the hang and mismatch logic.
+`[OWNER-CORE]` M2: the hang and mismatch logic is maintainer-owned.
 
 It forces induced faults F02 (hang), F04 (desync) and F11 (error) at a chosen
 (rank, step, op). It works by interposing `nccl*` and selected `cuda*` entry points.

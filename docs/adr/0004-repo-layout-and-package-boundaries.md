@@ -2,7 +2,7 @@
 
 - Status: Proposed
 - Date: 2026-09-28
-- Deciders: Naresh (+ Claude Code as advisor)
+- Deciders: maintainers
 
 ## Context
 ARCHITECTURE §8 (original) had `faultlab/`, `bench/`, `sim/` and `export/` as top-level
@@ -11,7 +11,7 @@ That leaves three problems:
 
 1. **Ground-truth leakage.** If the detector can import the fault ledger, attribution
    results can be contaminated by ground truth, even by accident (for example a test helper
-   reading the ledger). Interviewers will ask how we know the classifier never saw the
+   reading the ledger). Reviewers will ask how we know the classifier never saw the
    answer.
 2. **Unchecked safety code.** faultlab holds the revert and watchdog logic, the most
    safety-critical Python in the repo, yet it was outside `mypy --strict`.
@@ -23,8 +23,9 @@ That leaves three problems:
    but the boundary between system under test and ground truth becomes a convention, not a
    structure.
 2. **Three packages in one distribution: `goodput` (system under test), `faultlab`
-   (adversary + ground truth), `bench` (evaluator).** `sim` and `export` move into
-   `goodput`, since they are offline consumers of goodput's own schemas. A CPU test
+   (adversary + ground truth), `bench` (evaluator).** `sim` moves into `goodput`, since it
+   is an offline consumer of goodput's own schemas. `export` goes to `bench`, because it
+   joins ground truth with system output (amended by ADR-0005). A CPU test
    enforces the import rules.
 3. **Separate repos or distributions.** Strongest isolation, but costly to keep in sync
    this early.

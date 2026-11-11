@@ -15,6 +15,8 @@ Status: initial design. Anything marked *(ADR)* is a decision to be ratified in 
    event log, never from ad-hoc timers.
 5. **Cheap in steady state.** Rank-side hooks are O(1) per step; heavy analysis only runs
    after a trigger.
+6. **Ground truth is isolated.** `goodput` cannot import `faultlab` or `bench`, and a test
+   enforces it (ADR-0004), so attribution results cannot be contaminated by the ledger.
 
 ## 2. System context
 
@@ -79,12 +81,15 @@ Status: initial design. Anything marked *(ADR)* is a decision to be ratified in 
                         └──────────────────────────────────────────────────────┘   (wider blast
                                                                                     radius or halt)
 ```
-  Every transition is an event with timestamp; MTTD/MTTR phases are computed from these.
+  Every transition is an event with timestamp; goodput's internal MTTD/MTTR diagnostics are
+  computed from these. Comparisons against baselines use the system-agnostic TTD/TTR
+  (EVALUATION §1.1).
 - Correlator: on trigger, gathers a window (default ±N s, configurable) of events from all
   agents, joins on topology (rank → GPU → NIC → switch), and builds an `Incident`.
 - Classifier: `Classifier` interface. v1 = deterministic rules over `Incident` features
-  (flight-recorder seq analysis, telemetry anomalies, liveness). v2 = model from the HF
-  project behind the same interface, evaluated on the same held-out set.
+  (flight-recorder seq analysis, telemetry anomalies, liveness). v2 = the RCA model
+  (ADR-0005) behind the same interface, evaluated on the same held-out set. A classifier
+  only produces a `Verdict`; it never issues actions.
 - Policy engine: `Verdict → Action` table (see FAULT_MATRIX), with guards: max restarts
   per window, spare-capacity check, escalation ladder.
 - Placer: chooses replacement nodes and checkpoint-replica peers using the topology model
@@ -125,9 +130,10 @@ Status: initial design. Anything marked *(ADR)* is a decision to be ratified in 
 ### 3.7 bench / sim / export
 - `bench/`: experiment runner → `bench/results/<run_id>/` (raw event log, telemetry,
   env manifest, config) → report generator.
+- `bench/export/`: builds the incident dataset (see §5). It lives in `bench` because it
+  joins ground truth with system output (ADR-0005).
 - `sim/`: discrete-event goodput simulator parameterized by measured phase distributions
   and literature failure rates; outputs projected goodput vs scale and checkpoint interval.
-- `export/`: builds the HF dataset (see §5) from ledgers + incidents.
 
 ## 4. Core schemas (`goodput/schemas/`, versioned)
 
@@ -160,12 +166,14 @@ Changes from the initial design: `event_id` (needed for `Verdict.evidence`);
 the shared `ComponentRef`; `fault_id` and `scenario_id` on `FaultInjection`; and
 `rng_state_ref` instead of inline RNG state.
 
-## 5. Dataset export (feeds Hugging Face projects)
+## 5. Dataset export (ADR-0005)
 
-One record per incident: normalized, time-ordered event text + structured features,
-ground-truth fault class and culprit from the ledger, the rules verdict, label provenance
-(real/induced/synthetic), and hardware context. Splits by *scenario seed and node*, not by
-random record, to avoid leakage. Dataset card documents provenance and limitations.
+Built by `bench/export/`. One record per incident: normalized, time-ordered event text +
+structured features, ground-truth fault class and culprit from the ledger, the rules
+verdict, label provenance (real/induced/synthetic, per ADR-0006), and scrubbed hardware
+context. Records carry split keys (run, topology group, fault family); splits group by run
+and hold out topologies and harvested real faults, never by random record, to avoid leakage.
+Dataset card documents provenance and limitations.
 
 ## 6. Failure semantics of goodput itself
 
@@ -176,7 +184,7 @@ random record, to avoid leakage. Dataset card documents provenance and limitatio
 - Split-brain avoidance: only the controller holding the job lease may issue cluster-wide
   actions *(ADR)*.
 
-## 7. Scaling notes (for interviews; not all implemented)
+## 7. Scaling notes (design intent; not all implemented)
 
 Fan-in: agents send anomalies, not raw series; hierarchical aggregation (per-rack) beyond
 ~1K nodes. Heartbeat intervals and timeouts are tuned against false-positive cost.
@@ -190,11 +198,11 @@ See ADR-0004 for the package boundaries. `goodput` never imports `faultlab` or `
 
 ```
 goodput/            # system under test (python package)
-  schemas/ rank/ agent/ controller/ ckpt/ topology/ signals/ policy/ sim/ export/
+  schemas/ rank/ agent/ controller/ ckpt/ topology/ signals/ policy/ sim/
 faultlab/           # adversary + ground truth (python package)
   mechanisms/ scenarios/ interposer/ (C) ledger.py safety.py
-bench/              # evaluator (python package): runner, metrics, reports
-  scenarios/ results/ (raw gitignored; summary/ committed)
+bench/              # evaluator (python package): runner, metrics, reports, export
+  export/ scenarios/ results/ (raw gitignored; summary/ committed)
 configs/            # example configs; real host lists are *.local.yaml (gitignored)
 dashboards/         # Grafana JSON
 docs/               # this folder
