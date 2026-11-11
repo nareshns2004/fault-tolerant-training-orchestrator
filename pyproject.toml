@@ -47,7 +47,7 @@ dev = [
     "ruff>=0.6",
     "mypy>=1.11",
     "types-PyYAML",
-    "pre-commit>=3.7",
+    "pre-commit>=4.7.0",
 ]
 
 [project.scripts]
