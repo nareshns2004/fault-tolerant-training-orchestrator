@@ -9,4 +9,9 @@
 - torchft: complementary or overlapping for our fault classes?
 - Rendezvous/membership: c10d store vs etcd.
 Decision criteria: does building it ourselves create *measurable* differentiation that is
-defensible in an interview? If not, reuse and cite.
+defensible to a skeptical reviewer? If not, reuse and cite.
+
+Input from the prior-art review (`docs/prior_art.md`): NVRx already ships an
+experimental flight-recorder attribution module. Before building goodput's own analyzer
+(M3), decide whether to reuse it, wrap it, or use it as the comparison baseline for
+culprit-rank accuracy.

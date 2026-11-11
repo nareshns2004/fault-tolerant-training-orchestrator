@@ -1,14 +1,18 @@
 """Cross-rank analysis of ProcessGroupNCCL flight-recorder dumps.
 
-[OWNER-CORE] M3 — Naresh implements ``analyze``. Claude Code owns the fixtures and tests
+[OWNER-CORE] M3 — ``analyze`` is maintainer-owned. Fixtures and tests are shared work
 (tests/fixtures/flight_recorder/, recorded from real dumps and labeled per rule 4).
 
-Why this exists (INTERVIEW_DEFENSE.md Q4): on a hang every rank times out, so "first rank
+Why this exists: on a hang every rank times out, so "first rank
 to report" is not attribution. The culprit is the rank whose collective sequence differs:
 it never *entered* seq N, never *completed* it, or entered a *different* op at seq N.
 
 Parsing the dump format is version-specific; record the PyTorch version that produced
 each fixture.
+
+Prior art: NVIDIA Resiliency Extension ships an experimental flight-recorder attribution
+module (docs/prior_art.md). Per ADR-0003 this analyzer either wraps it or is benchmarked
+against it; it is not claimed as novel.
 """
 
 from __future__ import annotations

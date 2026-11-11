@@ -1,8 +1,16 @@
 # goodput
 
+[![ci](https://github.com/nareshns2004/fault-tolerant-training-orchestrator/actions/workflows/ci.yml/badge.svg)](https://github.com/nareshns2004/fault-tolerant-training-orchestrator/actions/workflows/ci.yml)
+[![License: Apache-2.0](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
+![Python 3.11+](https://img.shields.io/badge/python-3.11%2B-blue.svg)
+![Status: pre-alpha](https://img.shields.io/badge/status-pre--alpha-orange.svg)
+
 **Cross-layer fault attribution and minimal-blast-radius recovery for multi-node LLM training.**
 
-> **Status: pre-alpha, milestone M1 of 6.** The repository holds the design, interfaces,
+*goodput* is the project and package name; this repository is
+`fault-tolerant-training-orchestrator`.
+
+> **Status: pre-alpha, milestone M1a (of M1a, M1b, M2–M6).** The repository holds the design, interfaces,
 > schemas and test harness. **No results have been measured yet.** This README makes no
 > performance claims. Every number that appears here later will link to a run under
 > [`bench/results/`](bench/results/) together with its environment manifest.
@@ -23,8 +31,11 @@ Stock tooling handles this as follows:
   the same broken hardware.
 
 Published reports of large training runs describe interruptions as frequent and mostly
-caused by infrastructure. See [`docs/PROJECT_BRIEF.md` §2](docs/PROJECT_BRIEF.md) for the
-primary sources. Each one is verified in `docs/prior_art.md` as part of M1.
+caused by infrastructure. Meta reported 419 unexpected interruptions in 54 days of Llama 3
+405B pretraining on 16,384 H100s, about 78% attributed to hardware, and 35 of them to
+network switches and cables (*literature values*; see
+[`docs/PROJECT_BRIEF.md` §2](docs/PROJECT_BRIEF.md), verified in
+[`docs/prior_art.md`](docs/prior_art.md) as part of M1a).
 
 ## The thesis
 
@@ -52,14 +63,17 @@ goodput builds on these tools and does not replace them.
 | `torchrun` / TorchElastic | Rendezvous, restart on process failure | *Why* it failed and *where*; avoids restarting onto bad hardware |
 | ProcessGroupNCCL watchdog + flight recorder | Collective timeouts; per-rank collective history | Cross-rank analysis that names the culprit, joined with hardware telemetry |
 | PyTorch DCP | Sharded, reshardable checkpoints | Tier placement by failure domain; restore path chosen per fault class |
-| torchft | Per-step fault tolerance through replica groups | Attribution and fabric-layer signals (complementary) |
-| NVIDIA Resiliency Extension | Straggler detection, in-process restart, local checkpoints | RoCE/IB fabric attribution and topology-aware policy |
+| torchft | Per-step fault tolerance through replica groups, live peer recovery | Attribution and fabric-layer signals (complementary) |
+| NVIDIA Resiliency Extension | Hang detection and restart, in-process restart, local/async checkpoints, straggler detection, health checks, experimental flight-recorder attribution | RDMA fabric counters joined to ranks through topology; topology-aware policy. NVRx's rank attribution is reused or used as a baseline, not re-claimed |
 | DCGM | GPU health, XIDs, diagnostics | Correlation of GPU events with training symptoms, mapped to ranks |
 
-The gap we claim is **cross-layer attribution**: joining PyTorch/NCCL symptoms with GPU
-health *and* RDMA fabric state (port state, retransmit and timeout counters, ECN/CNP, PFC
-pause) through an explicit topology model. M1 has a gate to check that this gap is real.
-If it isn't, the project is re-scoped before any fault-injection code is written.
+The gap we claim is **cross-layer attribution to the physical component**: joining
+PyTorch/NCCL symptoms with GPU health *and* RDMA fabric state (port state, retransmit and
+timeout counters, ECN/CNP, PFC pause) through an explicit topology model, and choosing the
+recovery from that verdict. Culprit-*rank* attribution from the flight recorder already
+exists in NVRx (experimental) and is treated as prior art. M1a has a gate to check that the
+remaining gap is real. If it isn't, the project is re-scoped before any fault-injection
+code is written.
 
 ## Architecture
 
@@ -107,14 +121,17 @@ into the code and the review process:
   `bench/results/<run_id>/` with its environment manifest. Simulator projections and
   literature values are labelled as such.
 - **Real, induced or synthetic.** Every fault and every telemetry sample carries one of
-  these labels, and the schemas enforce it. Detection results on synthetic GPU faults
+  these labels, and the schemas enforce it ([ADR-0006](docs/adr/0006-provenance-labels.md)). Detection results on synthetic GPU faults
   are never presented as evidence about real hardware.
-- **Baselines that aren't strawmen.** B0 is stock `torchrun` with synchronous DCP. B1 adds
-  async DCP. B2 (optional) uses NVIDIA Resiliency Extension components. Checkpoint
-  intervals come from Young/Daly using measured checkpoint cost.
+- **Baselines that aren't strawmen.** B0 is stock `torchrun` with synchronous DCP.
+  B0-tuned uses aggressively tuned NCCL and process-group timeouts. B1 adds async DCP. B2
+  (optional) uses NVIDIA Resiliency Extension components. Checkpoint intervals come from
+  Young/Daly using measured checkpoint cost. Detection and recovery times are measured
+  end-to-end from the fault, the same way for every system.
 - **Statistics.** Each fault class gets many trials with seeded, randomized targets.
-  Percentiles and bootstrap confidence intervals are reported, and failures are listed one
-  by one. See [`docs/EVALUATION.md`](docs/EVALUATION.md).
+  Percentiles and bootstrap confidence intervals are reported, failures are listed one by
+  one, and a target counts as met only with enough trials to demonstrate it. See
+  [`docs/EVALUATION.md`](docs/EVALUATION.md).
 - **Recovery must be correct.** A sample ledger (no sample duplicated or skipped), a
   loss-trajectory comparison against an uninterrupted run, and optimizer and RNG state
   checks.
@@ -146,12 +163,12 @@ goodput/                 system under test (Python package)
   ckpt/                  tiered checkpoint catalog (host / peer / durable)
   topology/              discovery -> artifacts/topology.json
   sim/                   goodput simulator (projections, labelled)
-  export/                Hugging Face dataset builder
 faultlab/                fault injector + ground-truth ledger (separate package)
   scenarios/             declarative fault scenarios (YAML)
   mechanisms/            signals, link state, clocks/power, storage, DCGM injection
   interposer/            LD_PRELOAD NCCL/CUDA interposer (C17)
 bench/                   evaluator: experiment runner, metrics, reports
+  export/                incident dataset builder: the only ledger + output join (ADR-0005)
   scenarios/             experiment definitions
   results/<run_id>/      raw results (gitignored) + committed summaries
 configs/                 example configs (real host lists are *.local.yaml, gitignored)
@@ -180,8 +197,9 @@ not on the list.
 
 | Milestone | Scope | Status |
 |---|---|---|
-| **M1** | Workload harness, B0/B1 baselines, topology discovery, env manifest, prior-art gate | In progress: skeleton only |
-| M2 | faultlab: injection harness, ground-truth ledger, safe revert | Not started |
+| **M1a** | Scaffold, CPU harness, CI, prior-art gate, environment definition | In progress |
+| M1b | Workload harness, B0/B0-tuned/B1 baselines, topology discovery, env manifest (cluster) | Not started |
+| M2 | faultlab: injection harness, ground-truth ledger, safe revert; in-process restart feasibility spike | Not started |
 | M3 | Flight-recorder signature capture, culprit-rank attribution | Not started |
 | M4 | Telemetry pipeline, cross-layer (GPU/NIC/fabric) correlation | Not started |
 | M5 | Topology-aware recovery, tiered checkpointing, goodput runs | Not started |
@@ -195,12 +213,23 @@ issues in the design are in [`docs/OPEN_QUESTIONS.md`](docs/OPEN_QUESTIONS.md).
 | Doc | Contents |
 |---|---|
 | [PROJECT_BRIEF](docs/PROJECT_BRIEF.md) | Problem, positioning, thesis, targets, scope tiers, risks |
+| [prior_art](docs/prior_art.md) | What existing tools cover, what goodput reuses, the gap decision |
 | [ARCHITECTURE](docs/ARCHITECTURE.md) | Components, state machine, schemas, failure semantics |
 | [FAULT_MATRIX](docs/FAULT_MATRIX.md) | 18 fault classes: mechanism, signals, verdict, recovery |
 | [EVALUATION](docs/EVALUATION.md) | Metric definitions, baselines, protocol, reporting |
-| [MILESTONES](docs/MILESTONES.md) | M1–M6 deliverables and exit criteria |
+| [MILESTONES](docs/MILESTONES.md) | M1a–M6 deliverables and exit criteria |
+| [ENVIRONMENT](docs/ENVIRONMENT.md) | Target hardware, host allowlist, provenance; generated env manifest |
 | [ADRs](docs/adr/) | Architecture decisions and their status |
-| [OPEN_QUESTIONS](docs/OPEN_QUESTIONS.md) | Contradictions and gaps to resolve |
+| [OPEN_QUESTIONS](docs/OPEN_QUESTIONS.md) | Open design questions, and where resolved ones were settled |
+
+## Related artifacts
+
+The labelled incidents goodput produces will be exported as a dataset that trains one
+root-cause-analysis model, `qwen3-nccl-rca-lora`, demoed in the `nccl-incident-rca`
+Hugging Face Space ([ADR-0005](docs/adr/0005-dataset-export-location-and-contract.md)). The model
+plugs back in behind goodput's `Classifier` interface, must beat the rules classifier on the
+same held-out set, and only recommends: it never takes recovery actions. Nothing is
+published until real incident data exists.
 
 ## Contributing, security, licence
 

@@ -1,8 +1,9 @@
 """In-process recovery entry points (ARCHITECTURE.md §3.1).
 
-[OWNER-CORE] M5 — Naresh implements. This module fixes the interface only.
+[OWNER-CORE] M5 — maintainer-owned; informed by the M2 feasibility spike
+(docs/MILESTONES.md). This module fixes the interface only.
 
-Before implementing, be able to answer (INTERVIEW_DEFENSE.md Q6, Q17):
+Questions the implementation must answer in writing:
 * What state is a ProcessGroupNCCL communicator in after an async error or abort, and
   which operations are still legal on it?
 * When is the CUDA context itself poisoned (sticky errors) so the process must exit?

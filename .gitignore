@@ -1,0 +1,44 @@
+# Python
+__pycache__/
+*.py[cod]
+*.so
+*.egg-info/
+build/
+dist/
+.eggs/
+
+# Tooling caches
+.venv/
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
+.coverage
+.coverage.*
+coverage.xml
+htmlcov/
+
+# Editors / OS
+.idea/
+.vscode/
+*.swp
+.DS_Store
+
+# Local-only material (personal notes, drafts): never published
+.local/
+
+# Real host lists and other site-specific config (see configs/hosts.example.yaml)
+configs/*.local.yaml
+
+# Generated artifacts (topology.json, env manifests)
+artifacts/*
+!artifacts/.gitkeep
+
+# Raw experiment output: only summary/ is committed (docs/EVALUATION.md §5)
+bench/results/*/*
+!bench/results/*/summary/
+!bench/results/*/config.yaml
+!bench/results/*/env_manifest.json
+
+# Interposer build output
+faultlab/interposer/build/
+*.o

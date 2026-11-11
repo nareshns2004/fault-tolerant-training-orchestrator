@@ -1,6 +1,6 @@
 """Mechanism interface.
 
-[OWNER-CORE] M2 — the revert/watchdog design is Naresh's. This is a proposed shape:
+[OWNER-CORE] M2 — the revert/watchdog design is maintainer-owned. This is a proposed shape:
 injection is split into ``prepare`` and ``apply`` so the revert exists and can be
 registered with the watchdog *before* anything on the host changes.
 """

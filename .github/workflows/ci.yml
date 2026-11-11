@@ -1,0 +1,57 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    name: lint · typecheck · CPU tests (py${{ matrix.python }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ["3.11", "3.12"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Install (CPU-only, no torch)
+        run: uv pip install -e '.[dev]'
+      - name: ruff
+        run: |
+          ruff check .
+          ruff format --check .
+      - name: mypy --strict
+        run: mypy
+      - name: pytest (CPU only; gpu/multinode markers deselected)
+        run: pytest --cov --cov-report=term-missing
+      - name: Validate shipped fault scenarios
+        run: for f in faultlab/scenarios/*.yaml; do faultlab validate "$f"; done
+      - name: Build sdist and wheel
+        run: uv build
+
+  hygiene:
+    name: repo hygiene
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: No compiled or cache files tracked
+        run: |
+          if git ls-files | grep -E '(__pycache__/|\.py[cod]$|\.venv/)'; then
+            echo "compiled/cache files are tracked; see .gitignore" >&2; exit 1
+          fi
+      - name: No real host lists tracked
+        run: |
+          if git ls-files | grep -E '^configs/.*\.local\.yaml$'; then
+            echo "configs/*.local.yaml must stay local" >&2; exit 1
+          fi
