@@ -7,6 +7,10 @@ All notable changes to this project are documented here. The format follows
 ## [Unreleased]
 
 ### Added
+- README visual identity: generated light/dark banner and architecture diagrams
+  (`scripts/build_assets.py`), Mermaid state diagram, social-preview card, badge row and
+  navigation; CI fails if the committed graphics drift from their generator.
+- Fixed: code-of-conduct contact placeholder now points to private reporting.
 - Repository skeleton: `goodput`, `faultlab` and `bench` packages; versioned schemas;
   component interfaces; a CPU-only test suite; and contributor and security docs.
 - GitHub Actions CI (ruff, mypy --strict, CPU tests, scenario validation, build, repo

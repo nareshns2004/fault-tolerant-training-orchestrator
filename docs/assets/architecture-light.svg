@@ -1,0 +1,98 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="880" height="470" viewBox="0 0 880 470" role="img" aria-labelledby="t d">
+<title id="t">goodput architecture</title>
+<desc id="d">Each node runs ranks with lightweight hooks and a node agent with collectors. The controller's state machine, correlator (the topology join), classifier and policy turn anomalies into evidence-backed actions. faultlab injects faults and keeps the ground-truth ledger outside the system under test; only bench sees both.</desc>
+<defs><linearGradient id="acc" x1="0" x2="1"><stop offset="0" stop-color="#1D4ED8"/><stop offset=".6" stop-color="#B4470E"/><stop offset="1" stop-color="#C2261D"/></linearGradient><marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#353A44"/></marker><marker id="arc" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#B4470E"/></marker></defs>
+<style>
+    .kick { font: 700 12.5px ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace; letter-spacing: .14em; fill: #15171C; }
+    .kick2 { font: 600 11px ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace; letter-spacing: .1em; fill: #555C6A; }
+    .h { font: 650 25px -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans', Helvetica, Arial, sans-serif; fill: #15171C; letter-spacing: -.014em; }
+    .sub { font: 500 12px ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace; fill: #353A44; }
+    .cap { font: 600 10.5px ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace; fill: #555C6A; letter-spacing: .06em; }
+    .lbl { font: 600 11px ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace; fill: #15171C; }
+    .lbl2 { font: 500 10.5px ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace; fill: #555C6A; }
+    .title { font: 650 13px -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans', Helvetica, Arial, sans-serif; fill: #15171C; }
+    .box { fill: #EFECE4; stroke: #BDB6A6; stroke-width: 1.2; }
+    .card { fill: #F7F5F0; stroke: #15171C; stroke-width: 1.3; }
+    .wire { fill: none; stroke: #BDB6A6; stroke-width: 1.4; }
+    .ink { fill: none; stroke: #15171C; stroke-width: 1.4; }
+    .sig { fill: none; stroke: #1D4ED8; stroke-width: 1.6; }
+    .cu { fill: none; stroke: #B4470E; stroke-width: 1.8; }
+    .dash { stroke-dasharray: 4 4; }
+    .fs { fill: #1D4ED8; } .fc { fill: #B4470E; } .ff { fill: #C2261D; }
+    .fg { fill: #555C6A; } .fi { fill: #15171C; } .fp { fill: #F7F5F0; }
+    .chip { fill: #F7F5F0; stroke: #BDB6A6; stroke-width: 1; }
+    .chipt { font: 600 10.5px ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace; fill: #353A44; letter-spacing: .04em; }
+    
+    .arr { fill: none; stroke: #353A44; stroke-width: 1.3; marker-end: url(#ar); }
+    .arrc { fill: none; stroke: #B4470E; stroke-width: 1.6; marker-end: url(#arc); }
+    .hl { fill: #F7F5F0; stroke: #B4470E; stroke-width: 2; }
+    .zone { fill: none; stroke: #BDB6A6; stroke-width: 1.2; stroke-dasharray: 5 5; }
+    
+    @media (prefers-reduced-motion: reduce) { * { animation: none !important; } }
+</style>
+<rect width="880" height="470" rx="12" fill="#F7F5F0"/>
+<rect x="24" y="14" width="832" height="3" rx="1.5" fill="url(#acc)"/>
+<text x="32" y="46" class="kick">SYSTEM CONTEXT</text>
+<text x="32" y="64" class="kick2">out of the data path · attribution before action · ground truth isolated</text>
+<rect x="20" y="82" width="840" height="276" rx="12" class="zone"/>
+<text x="34" y="100" class="cap">goodput · system under test</text>
+<rect x="36" y="112" width="284" height="230" rx="10" class="box"/>
+<text x="52" y="134" class="title">Node × N</text>
+<rect x="52" y="146" width="252" height="62" rx="7" class="card"/>
+<text x="66" y="168" class="lbl">ranks</text>
+<text x="66" y="186" class="lbl2">torchtitan + hooks</text>
+<text x="66" y="200" class="lbl2">progress beacon · flight recorder</text>
+<rect x="52" y="222" width="252" height="62" rx="7" class="card"/>
+<text x="66" y="244" class="lbl">node agent</text>
+<text x="66" y="262" class="lbl2">liveness · DCGM · RDMA counters</text>
+<text x="66" y="276" class="lbl2">kernel log · host</text>
+<path d="M178 208 L178 220" class="arr"/>
+<rect x="52" y="296" width="80" height="34" rx="6" class="chip"/>
+<text x="92" y="310" class="lbl" text-anchor="middle">tier 0</text>
+<text x="92" y="324" class="lbl2" text-anchor="middle">host mem</text>
+<rect x="138" y="296" width="80" height="34" rx="6" class="chip"/>
+<text x="178" y="310" class="lbl" text-anchor="middle">tier 1</text>
+<text x="178" y="324" class="lbl2" text-anchor="middle">peer</text>
+<rect x="224" y="296" width="80" height="34" rx="6" class="chip"/>
+<text x="264" y="310" class="lbl" text-anchor="middle">tier 2</text>
+<text x="264" y="324" class="lbl2" text-anchor="middle">durable</text>
+<rect x="384" y="112" width="460" height="230" rx="10" class="box"/>
+<text x="400" y="134" class="title">Controller · one per job</text>
+<rect x="400" y="150" width="98" height="58" rx="7" class="card"/>
+<text x="449" y="174" class="lbl" text-anchor="middle">state</text>
+<text x="449" y="192" class="lbl2" text-anchor="middle">machine</text>
+<path d="M498 179 L511 179" class="arr"/>
+<rect x="511" y="150" width="98" height="58" rx="7" class="hl"/>
+<text x="560" y="174" class="lbl" text-anchor="middle">correlator</text>
+<text x="560" y="192" class="lbl2" text-anchor="middle">topology join</text>
+<path d="M609 179 L622 179" class="arr"/>
+<rect x="622" y="150" width="98" height="58" rx="7" class="card"/>
+<text x="671" y="174" class="lbl" text-anchor="middle">classifier</text>
+<text x="671" y="192" class="lbl2" text-anchor="middle">rules · model</text>
+<path d="M720 179 L733 179" class="arr"/>
+<rect x="733" y="150" width="98" height="58" rx="7" class="card"/>
+<text x="782" y="174" class="lbl" text-anchor="middle">policy</text>
+<text x="782" y="192" class="lbl2" text-anchor="middle">+ placer</text>
+<rect x="400" y="226" width="198" height="54" rx="7" class="card"/>
+<text x="414" y="248" class="lbl">event log</text>
+<text x="414" y="266" class="lbl2">append-only · all metrics</text>
+<rect x="622" y="226" width="208" height="54" rx="7" class="card"/>
+<text x="636" y="248" class="lbl">actions (with evidence)</text>
+<text x="636" y="266" class="lbl2">reinit · restart · replace</text>
+<path d="M782 208 L782 224" class="arr"/>
+<path d="M304 240 L344 240 L344 179 L398 179" class="arr"/>
+<text x="350" y="172" class="lbl2">events</text>
+<path d="M726 280 L726 312 L362 312 L362 268 L306 268" class="arrc"/>
+<text x="560" y="306" class="lbl2" text-anchor="middle">smallest safe action</text>
+<rect x="36" y="374" width="300" height="62" rx="10" class="card dash"/>
+<text x="52" y="397" class="lbl">faultlab</text>
+<text x="52" y="415" class="lbl2">injects faults · ground-truth ledger</text>
+<path d="M186 374 L186 344" class="arrc dash"/>
+<rect x="544" y="374" width="300" height="62" rx="10" class="card dash"/>
+<text x="560" y="397" class="lbl">bench</text>
+<text x="560" y="415" class="lbl2">the only place ledger meets verdicts</text>
+<path d="M694 374 L694 344" class="arr dash"/>
+<path d="M336 405 L540 405" class="arr dash"/>
+<text x="438" y="398" class="lbl2" text-anchor="middle">ledger</text>
+<text x="438" y="458" class="cap" text-anchor="middle">import boundary enforced by a test (ADR-0004)</text>
+</svg>
