@@ -5,5 +5,6 @@ This project follows the [Contributor Covenant, version 2.1](https://www.contrib
 In short: be respectful, assume good faith, critique ideas rather than people, and keep
 technical disagreement technical.
 
-Report unacceptable behaviour to the maintainer at **TODO: maintainer contact**. Reports
-are handled confidentially.
+Report unacceptable behaviour privately to the maintainers through this repository's
+[private reporting form](https://github.com/nareshns2004/fault-tolerant-training-orchestrator/security/advisories/new)
+(it reaches the maintainers only). Reports are handled confidentially.

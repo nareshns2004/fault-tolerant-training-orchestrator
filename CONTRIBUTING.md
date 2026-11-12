@@ -70,6 +70,13 @@ only run on allowlisted hosts.
 - Adding or changing a metric → `docs/EVALUATION.md` is the only place metrics are
   defined.
 
+## Graphics
+
+README graphics live in `docs/assets/` and are generated, never hand-edited:
+`python3 scripts/build_assets.py` writes the light and dark SVGs (CI fails if they are out of
+date), and `scripts/render_png.sh` renders the social-preview PNG (needs Chrome/Chromium).
+They are illustrative and must never show a measured-looking number.
+
 ## Commits and pull requests
 
 - Use [Conventional Commits](https://www.conventionalcommits.org/) (`feat(faultlab): ...`,

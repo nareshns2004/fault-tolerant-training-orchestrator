@@ -50,6 +50,10 @@ jobs:
           if git ls-files | grep -E '(__pycache__/|\.py[cod]$|\.venv/)'; then
             echo "compiled/cache files are tracked; see .gitignore" >&2; exit 1
           fi
+      - name: README graphics match their generator
+        run: |
+          python3 scripts/build_assets.py
+          git diff --exit-code -- docs/assets/
       - name: No real host lists tracked
         run: |
           if git ls-files | grep -E '^configs/.*\.local\.yaml$'; then
