@@ -46,14 +46,15 @@ Deliverables
 - torchtitan workload running at 1B (iteration) and 8B (headline) with FSDP2 on ≥ 2 nodes;
   step time and MFU recorded.
 - Baselines B0, B0-tuned and B1 implemented; SIGKILL trials measured with TTR phase
-  decomposition, instrumenting the baseline without modifying it (OQ-10). Link-down trials
-  only once a minimal revert harness exists (OQ-11); otherwise they move to M2.
+  decomposition, instrumenting the baseline without modifying it (ADR-0007). **SIGKILL
+  trials only** in M1b; link-down and other host-state faults wait for M2's revert and
+  watchdog (ADR-0007).
 - Revisit targets in PROJECT_BRIEF §6 with baseline data; record changes in an ADR.
 
 Exit criteria
 - A stranger could reproduce the B0 run from docs alone.
-- Baseline TTR decomposition exists for ≥ 2 fault types with ≥ 5 trials each.
-- ADR-0001/0002 accepted or revised.
+- Baseline TTR decomposition exists for SIGKILL of one rank and of a whole node, ≥ 5 trials each.
+- ADR-0001 pinned to a torchtitan commit (accepted in ADR-0007; revise if hooks prove invasive).
 
 `[OWNER-CORE]`: the TTR phase instrumentation design.
 
@@ -142,7 +143,8 @@ Deliverables
   on the M2 feasibility result, with a documented list of fault classes where it is and is
   not safe.
 - Tier 0/1/2 checkpoint manager with atomic manifests, checksums, peer placement.
-- Node replacement from spare pool; elastic shrink preserving global batch (Should).
+- Node replacement from spare pool if one exists; elastic shrink preserving global batch
+  (**Must** when no spare exists, ADR-0007).
 - Correctness verification (sample ledger, loss comparison, optimizer/RNG state checks).
 - 12 h+ goodput runs for goodput, B0, B1 (B2 if adopted) on the same fault schedule.
 

@@ -1,6 +1,6 @@
 # ADR-0005: Dataset export location, contract, and downstream artifacts
 
-- Status: Accepted
+- Status: Accepted; downstream artifacts amended by ADR-0007
 - Date: 2026-10-11 (proposed); 2026-11-11 (revised and accepted)
 - Deciders: maintainers
 
@@ -40,8 +40,8 @@ Option 2.
 the ledger.
 
 **Contract.** One JSON line per incident, defined by a JSON Schema owned by this repo
-(`docs/schemas/incident.schema.json`, versioned, added with the M3 implementation) and
-validated in a CPU test. Each record holds:
+(`docs/schemas/incident.schema.json`, versioned, generated from
+`bench/export/record.py` by `make schemas`) and validated in a CPU test that fails on drift. Each record holds:
 - time-ordered event lines, each with `ref = event_id`, rendered deterministically as
   `"<kind> " + " ".join(f"{k}={v}" for k, v in sorted(payload.items()))`;
 - `labels`: ground-truth `fault_class` and culprit `ComponentRef` from the ledger;
@@ -58,7 +58,7 @@ split. Never split by random record (near-duplicate incidents from one trial wou
 
 | Artifact | Kind | Role |
 |---|---|---|
-| goodput incident dataset | Dataset with a dataset card | The only training and evaluation source |
+| goodput incident records | `data/` and `eval/` inside the model repo (ADR-0007) | The only training and evaluation source |
 | `qwen3-nccl-rca-lora` | Hugging Face model | Grounded RCA: fault class, culprit, cited evidence lines |
 | `nccl-incident-rca` | Hugging Face Space | Demo: signature matching (M3's catalogue) plus the model |
 

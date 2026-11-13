@@ -94,7 +94,8 @@ Status: initial design. Anything marked *(ADR)* is a decision to be ratified in 
   per window, spare-capacity check, escalation ladder.
 - Placer: chooses replacement nodes and checkpoint-replica peers using the topology model
   and failure-domain constraints.
-- Membership/rendezvous backend *(ADR)*: reuse c10d store / etcd rather than invent.
+- Membership/rendezvous: the c10d `TCPStore` that torchrun's c10d rendezvous already runs;
+  control-plane messages are HTTP/JSON carrying the pydantic schemas (ADR-0002, ADR-0007).
 
 ### 3.4 Checkpoint manager (`goodput/ckpt/`)
 - Tier 0: snapshot of sharded state to pinned host memory on the same node (fast, lost with
@@ -173,7 +174,9 @@ structured features, ground-truth fault class and culprit from the ledger, the r
 verdict, label provenance (real/induced/synthetic, per ADR-0006), and scrubbed hardware
 context. Records carry split keys (run, topology group, fault family); splits group by run
 and hold out topologies and harvested real faults, never by random record, to avoid leakage.
-Dataset card documents provenance and limitations.
+The contract is `bench/export/record.py` (`IncidentRecord`), published as
+`docs/schemas/incident.schema.json`. Records ship inside the `qwen3-nccl-rca-lora` model repo
+with a data section in its card (ADR-0007), not as a separate dataset.
 
 ## 6. Failure semantics of goodput itself
 
@@ -182,7 +185,10 @@ Dataset card documents provenance and limitations.
 - Agent crash: ranks continue; controller marks node telemetry-blind and lowers confidence
   on verdicts involving it.
 - Split-brain avoidance: only the controller holding the job lease may issue cluster-wide
-  actions *(ADR)*.
+  actions. The lease is a `(holder, epoch, expires_utc_ns)` key in the c10d store, taken and
+  renewed with `compare_set`; a challenger waits for expiry plus the clock-skew margin, and
+  every action carries the lease epoch so a deposed controller's actions are rejected
+  (ADR-0007).
 
 ## 7. Scaling notes (design intent; not all implemented)
 
