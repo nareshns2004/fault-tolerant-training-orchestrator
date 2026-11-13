@@ -336,7 +336,7 @@
       "type": "object"
     }
   },
-  "$id": "https://github.com/nareshns2004/goodput/blob/main/docs/schemas/incident.schema.json",
+  "$id": "https://github.com/nareshns2004/goodput-fault-tolerant-training-orchestrator/blob/main/docs/schemas/incident.schema.json",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "description": "One labelled incident, exactly as published (ADR-0005).",

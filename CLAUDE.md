@@ -5,8 +5,8 @@ contributor). Human contributors should start with [CONTRIBUTING.md](CONTRIBUTIN
 
 ## What this repo is
 
-**goodput** (GitHub Project 1; repository being renamed from
-`fault-tolerant-training-orchestrator` to `goodput`; PyPI distribution `goodput-train`) is a cross-layer
+**goodput** (GitHub Project 1; repository `goodput-fault-tolerant-training-orchestrator`;
+PyPI distribution `goodput-train`) is a cross-layer
 reliability system for multi-node LLM training. It injects realistic faults, detects them
 fast, attributes them to the right component (rank, GPU, NIC, port, link, node, storage),
 and recovers with the smallest possible blast radius using topology-aware, tiered
@@ -19,7 +19,7 @@ precise, not because we restart harder.**
 goodput is one of two repos in one portfolio; keep them consistent:
 
 - **GitHub Project 1: goodput** (this repo): reliability at scale.
-- **GitHub Project 2: kvwire** (`disaggregated-inference-engine`, being renamed `kvwire`):
+- **GitHub Project 2: kvwire** (repository `kvwire-disaggregated-inference-engine`):
   RDMA KV-cache transport for disaggregated inference; efficiency at scale.
 - **Hugging Face Project 1**, built only from this repo's data: model
   `qwen3-nccl-rca-lora` (slow tier, structured verdict citing evidence refs; train/eval data

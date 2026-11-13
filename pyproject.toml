@@ -29,10 +29,10 @@ dependencies = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/nareshns2004/fault-tolerant-training-orchestrator"
-Documentation = "https://github.com/nareshns2004/fault-tolerant-training-orchestrator/tree/main/docs"
-Issues = "https://github.com/nareshns2004/fault-tolerant-training-orchestrator/issues"
-Changelog = "https://github.com/nareshns2004/fault-tolerant-training-orchestrator/blob/main/CHANGELOG.md"
+Homepage = "https://github.com/nareshns2004/goodput-fault-tolerant-training-orchestrator"
+Documentation = "https://github.com/nareshns2004/goodput-fault-tolerant-training-orchestrator/tree/main/docs"
+Issues = "https://github.com/nareshns2004/goodput-fault-tolerant-training-orchestrator/issues"
+Changelog = "https://github.com/nareshns2004/goodput-fault-tolerant-training-orchestrator/blob/main/CHANGELOG.md"
 
 [project.optional-dependencies]
 # Rank-side hooks, checkpoint manager and workload. Pin torch/torchtitan per
