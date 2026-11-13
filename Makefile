@@ -9,7 +9,7 @@ PKGS       := goodput faultlab bench
 
 .DEFAULT_GOAL := help
 .PHONY: help setup lint fmt typecheck test test-gpu test-multinode check \
-        env-manifest topo bench report clean
+        schemas env-manifest topo bench report clean
 
 help:  ## List targets
 	@grep -hE '^[a-zA-Z_-]+:.*?## ' $(MAKEFILE_LIST) | \
@@ -41,6 +41,9 @@ test-multinode:  ## Multi-node tests (requires allowlisted hosts)
 	$(BIN)/pytest -m multinode
 
 check: lint typecheck test  ## Everything CI runs
+
+schemas:  ## Regenerate docs/schemas/*.json from the pydantic models (a test checks drift)
+	$(BIN)/python -m bench.export.schema
 
 env-manifest:  ## (stub, M1) Write env manifest + docs/ENVIRONMENT.md generated section
 	@echo "env-manifest: not implemented yet (M1)" >&2; exit 2

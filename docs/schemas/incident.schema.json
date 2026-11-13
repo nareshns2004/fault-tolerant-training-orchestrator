@@ -1,0 +1,400 @@
+{
+  "$defs": {
+    "ComponentRef": {
+      "additionalProperties": false,
+      "description": "A physical or logical component, at any granularity.\n\nUsed both as a fault *target* (ledger) and a verdict *culprit*, so attribution\naccuracy is a field-by-field comparison of the same type (EVALUATION.md \u00a71).\nUnset fields mean \"not asserted\", not \"healthy\".",
+      "properties": {
+        "gpu_uuid": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Gpu Uuid"
+        },
+        "nic": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Nic"
+        },
+        "node": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Node"
+        },
+        "port": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Port"
+        },
+        "rank": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Rank"
+        },
+        "storage": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Storage"
+        }
+      },
+      "title": "ComponentRef",
+      "type": "object"
+    },
+    "EventLine": {
+      "additionalProperties": false,
+      "description": "One rendered event. ``ref`` is the ``event_id`` a verdict cites as evidence.",
+      "properties": {
+        "ref": {
+          "description": "event_id; what Verdict.evidence cites",
+          "minLength": 1,
+          "title": "Ref",
+          "type": "string"
+        },
+        "text": {
+          "description": "render_event_line() output",
+          "minLength": 1,
+          "title": "Text",
+          "type": "string"
+        },
+        "ts_utc_ns": {
+          "description": "UTC epoch nanoseconds (cross-host correlation)",
+          "minimum": 0,
+          "title": "Ts Utc Ns",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "ref",
+        "ts_utc_ns",
+        "text"
+      ],
+      "title": "EventLine",
+      "type": "object"
+    },
+    "FaultClass": {
+      "description": "Verdict vocabulary. One value per 'Correct verdict' in docs/FAULT_MATRIX.md.",
+      "enum": [
+        "process_crash",
+        "collective_hang",
+        "host_hang",
+        "collective_desync",
+        "straggler_gpu",
+        "straggler_host",
+        "nic_link_down",
+        "nic_link_flap",
+        "fabric_congestion",
+        "nccl_transport_error",
+        "gpu_hw_fault",
+        "gpu_oom",
+        "storage_degraded",
+        "ckpt_corrupt",
+        "node_loss",
+        "sdc",
+        "control_plane_fault",
+        "unknown"
+      ],
+      "title": "FaultClass",
+      "type": "string"
+    },
+    "GroundTruth": {
+      "additionalProperties": false,
+      "description": "The answer, from the faultlab ledger. Never visible to the system under test.",
+      "properties": {
+        "culprit": {
+          "$ref": "#/$defs/ComponentRef"
+        },
+        "fault_class": {
+          "$ref": "#/$defs/FaultClass"
+        },
+        "fault_id": {
+          "description": "row in docs/FAULT_MATRIX.md",
+          "pattern": "^F\\d{2}$",
+          "title": "Fault Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "fault_id",
+        "fault_class",
+        "culprit"
+      ],
+      "title": "GroundTruth",
+      "type": "object"
+    },
+    "HardwareContext": {
+      "additionalProperties": false,
+      "description": "Scrubbed environment from the run's env manifest: models and versions only.\n\nNo hostnames, IPs, serials or GPU UUIDs.",
+      "properties": {
+        "cuda_version": {
+          "minLength": 1,
+          "title": "Cuda Version",
+          "type": "string"
+        },
+        "fabric": {
+          "enum": [
+            "infiniband",
+            "roce",
+            "other"
+          ],
+          "title": "Fabric",
+          "type": "string"
+        },
+        "gpu_model": {
+          "minLength": 1,
+          "title": "Gpu Model",
+          "type": "string"
+        },
+        "gpus_per_node": {
+          "minimum": 1,
+          "title": "Gpus Per Node",
+          "type": "integer"
+        },
+        "link_rate_gbps": {
+          "anyOf": [
+            {
+              "exclusiveMinimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Link Rate Gbps"
+        },
+        "nccl_version": {
+          "minLength": 1,
+          "title": "Nccl Version",
+          "type": "string"
+        },
+        "nic_model": {
+          "minLength": 1,
+          "title": "Nic Model",
+          "type": "string"
+        },
+        "num_nodes": {
+          "minimum": 1,
+          "title": "Num Nodes",
+          "type": "integer"
+        },
+        "torch_version": {
+          "minLength": 1,
+          "title": "Torch Version",
+          "type": "string"
+        }
+      },
+      "required": [
+        "num_nodes",
+        "gpus_per_node",
+        "gpu_model",
+        "nic_model",
+        "fabric",
+        "torch_version",
+        "nccl_version",
+        "cuda_version"
+      ],
+      "title": "HardwareContext",
+      "type": "object"
+    },
+    "Provenance": {
+      "description": "Where a fault or a telemetry value came from (CLAUDE.md rule 4). Never blur these.\n\n``real``      hardware/OS genuinely misbehaved (harvested, not scheduled by us).\n``induced``   a real mechanism, deliberately triggered (SIGKILL, interposer hang,\n              ``ip link set down``).\n``synthetic`` fabricated values (e.g. DCGM field injection). Proves the pipeline,\n              never the physics.\n\nFor telemetry, the label describes the *value*: a counter genuinely read from\nhardware during an induced fault is ``real``; the fault's own provenance lives on\nthe ``FaultInjection``. (Proposed interpretation \u2014 see docs/OPEN_QUESTIONS.md OQ-2.)",
+      "enum": [
+        "real",
+        "induced",
+        "synthetic"
+      ],
+      "title": "Provenance",
+      "type": "string"
+    },
+    "SplitKeys": {
+      "additionalProperties": false,
+      "description": "Grouping keys for leakage-safe splits. Never split by random record.",
+      "properties": {
+        "fault_family": {
+          "description": "FAULT_MATRIX layer, e.g. NIC/fabric",
+          "minLength": 1,
+          "title": "Fault Family",
+          "type": "string"
+        },
+        "run_id": {
+          "minLength": 1,
+          "title": "Run Id",
+          "type": "string"
+        },
+        "seed": {
+          "description": "fault-schedule seed of the run",
+          "minimum": 0,
+          "title": "Seed",
+          "type": "integer"
+        },
+        "topology_group": {
+          "description": "held out as a unit",
+          "minLength": 1,
+          "title": "Topology Group",
+          "type": "string"
+        }
+      },
+      "required": [
+        "run_id",
+        "seed",
+        "topology_group",
+        "fault_family"
+      ],
+      "title": "SplitKeys",
+      "type": "object"
+    },
+    "Verdict": {
+      "additionalProperties": false,
+      "description": "Classifier output. No recovery action may be taken without one (ARCHITECTURE \u00a71.2).",
+      "properties": {
+        "classifier_version": {
+          "minLength": 1,
+          "title": "Classifier Version",
+          "type": "string"
+        },
+        "confidence": {
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Confidence",
+          "type": "number"
+        },
+        "culprit": {
+          "$ref": "#/$defs/ComponentRef"
+        },
+        "evidence": {
+          "description": "event_ids from the incident",
+          "items": {
+            "type": "string"
+          },
+          "title": "Evidence",
+          "type": "array"
+        },
+        "fault_class": {
+          "$ref": "#/$defs/FaultClass"
+        },
+        "incident_id": {
+          "minLength": 1,
+          "title": "Incident Id",
+          "type": "string"
+        },
+        "schema_v": {
+          "const": 1,
+          "default": 1,
+          "title": "Schema V",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "incident_id",
+        "fault_class",
+        "culprit",
+        "confidence",
+        "evidence",
+        "classifier_version"
+      ],
+      "title": "Verdict",
+      "type": "object"
+    }
+  },
+  "$id": "https://github.com/nareshns2004/goodput/blob/main/docs/schemas/incident.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "One labelled incident, exactly as published (ADR-0005).",
+  "properties": {
+    "events": {
+      "description": "time-ordered",
+      "items": {
+        "$ref": "#/$defs/EventLine"
+      },
+      "minItems": 1,
+      "title": "Events",
+      "type": "array"
+    },
+    "hardware": {
+      "$ref": "#/$defs/HardwareContext"
+    },
+    "incident_id": {
+      "minLength": 1,
+      "title": "Incident Id",
+      "type": "string"
+    },
+    "labels": {
+      "$ref": "#/$defs/GroundTruth"
+    },
+    "provenance": {
+      "$ref": "#/$defs/Provenance",
+      "description": "of the fault, per ADR-0006"
+    },
+    "record_id": {
+      "minLength": 1,
+      "title": "Record Id",
+      "type": "string"
+    },
+    "schema_v": {
+      "const": 1,
+      "default": 1,
+      "title": "Schema V",
+      "type": "integer"
+    },
+    "split_keys": {
+      "$ref": "#/$defs/SplitKeys"
+    },
+    "system_verdict": {
+      "$ref": "#/$defs/Verdict",
+      "description": "the rules classifier's verdict"
+    }
+  },
+  "required": [
+    "record_id",
+    "incident_id",
+    "events",
+    "labels",
+    "system_verdict",
+    "provenance",
+    "hardware",
+    "split_keys"
+  ],
+  "title": "IncidentRecord",
+  "type": "object",
+  "x-schema-version": 1
+}
