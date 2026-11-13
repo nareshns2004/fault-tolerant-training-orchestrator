@@ -42,3 +42,7 @@ bench/results/*/*
 # Interposer build output
 faultlab/interposer/build/
 *.o
+
+# Claude Code: shared commands are tracked; personal settings and notes are not
+CLAUDE.local.md
+.claude/settings.local.json
