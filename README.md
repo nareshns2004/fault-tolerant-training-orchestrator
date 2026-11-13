@@ -20,11 +20,12 @@
 </div>
 
 > [!NOTE]
-> **Pre-alpha, milestone M1a.** The repository holds the design, interfaces, schemas and a
+> **GitHub Project 1 · pre-alpha, milestone M1a.** The repository holds the design, interfaces, schemas and a
 > CPU test harness. **No results have been measured yet**, and this README makes no
 > performance claims. Every number that appears here later will link to a run under
 > [`bench/results/`](bench/results/) with its environment manifest. *goodput* is the
-> project and package name; the repository is `fault-tolerant-training-orchestrator`.
+> project, package and CLI name (PyPI distribution: `goodput-train`); the repository is being
+> renamed from `fault-tolerant-training-orchestrator` to `goodput` (ADR-0007).
 
 ---
 
@@ -243,12 +244,26 @@ issues in the design are in [`docs/OPEN_QUESTIONS.md`](docs/OPEN_QUESTIONS.md).
 
 ## Related artifacts
 
-The labelled incidents goodput produces will be exported as a dataset that trains one
-root-cause-analysis model, `qwen3-nccl-rca-lora`, demoed in the `nccl-incident-rca`
-Hugging Face Space ([ADR-0005](docs/adr/0005-dataset-export-location-and-contract.md)). The model
-plugs back in behind goodput's `Classifier` interface, must beat the rules classifier on the
-same held-out set, and only recommends: it never takes recovery actions. Nothing is
-published until real incident data exists.
+goodput is one half of a two-repo portfolio on GPU networking and distributed systems:
+**goodput** (GitHub Project 1) covers *reliability* at scale, and its sibling
+[**kvwire**](https://github.com/nareshns2004/disaggregated-inference-engine) (GitHub Project 2)
+covers *efficiency* at scale: RDMA KV-cache transport for disaggregated inference. Both share
+the fault-injection discipline and the real / induced / synthetic labels
+([ADR-0006](docs/adr/0006-provenance-labels.md)).
+
+goodput's labelled incidents feed **Hugging Face Project 1**
+([ADR-0005](docs/adr/0005-dataset-export-location-and-contract.md),
+[ADR-0007](docs/adr/0007-open-questions-resolved.md)):
+
+| Artifact | Role | Status |
+|---|---|---|
+| [`qwen3-nccl-rca-lora`](https://huggingface.co/nareshns2004/qwen3-nccl-rca-lora) | Slow tier: Qwen3 + LoRA root-cause analysis. Emits a structured verdict that cites evidence refs, so every answer is scored automatically against the fault ledger. The incident records ([schema](docs/schemas/incident.schema.json)) ship inside this repo. | Planned (M3+) |
+| [`nccl-incident-rca`](https://huggingface.co/spaces/nareshns2004/nccl-incident-rca) | Fast tier: signature matching from M3's catalogue, plus the model once it passes its gates | Planned (M3+) |
+
+The model plugs back in behind goodput's `Classifier` interface. It ships only if it beats the
+rules classifier, the zero-shot base model and the majority baseline on the same held-out
+split, and it only recommends: it never takes recovery actions. Nothing is uploaded until
+real exported incidents exist.
 
 ## Contributing, security, licence
 

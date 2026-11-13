@@ -7,6 +7,12 @@ All notable changes to this project are documented here. The format follows
 ## [Unreleased]
 
 ### Added
+- Incident record contract `bench/export/record.py` and its generated JSON Schema
+  `docs/schemas/incident.schema.json` (`make schemas`; a CPU test fails on drift). Hostnames
+  and GPU UUIDs are rejected at validation time.
+- ADR-0007: OQ-10, 11, 13, 14, 15, 17, 18 and 20 resolved; downstream HF artifacts amended
+  (incident records ship inside the model repo).
+- `/plan-milestone` and `/drill` Claude Code commands.
 - README visual identity: generated light/dark banner and architecture diagrams
   (`scripts/build_assets.py`), Mermaid state diagram, social-preview card, badge row and
   navigation; CI fails if the committed graphics drift from their generator.
@@ -21,6 +27,11 @@ All notable changes to this project are documented here. The format follows
 - EVALUATION: system-agnostic TTD/TTR, B0-tuned baseline, sample-size rules.
 
 ### Changed
+- ADR-0001, 0002 and 0004 accepted; ADR-0002 now records HTTP/JSON and the c10d-store lease.
+- PyPI distribution renamed `goodput-train` (`goodput` is taken); import package and CLI
+  unchanged.
+- PROJECT_BRIEF §6: every metric lists its fault IDs; metric 8 falls back to elastic
+  shrink (now Must) when no spare node exists. M1b runs SIGKILL trials only.
 - FAULT_MATRIX: faultlab-scheduled faults relabelled `I` (ADR-0006).
 - MILESTONES: M1 split into M1a (CPU, prior art) and M1b (cluster baselines); in-process
   restart feasibility spike moved to M2.
