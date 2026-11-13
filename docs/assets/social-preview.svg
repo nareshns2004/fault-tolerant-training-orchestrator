@@ -93,4 +93,4 @@
 <path d="M797 226 L797 240 L678 240 L678 250" class="wire ev3"/>
 <g class="ev3"><rect x="742" y="190" width="110" height="36" rx="6" class="chip"/><text x="751" y="205" class="lbl2">dcgm</text><text x="751" y="219" class="lbl">gpu healthy</text></g>
 <g class="vd"><rect x="530" y="250" width="296" height="28" rx="14" fill="#15171C"/><text x="678" y="268" text-anchor="middle" class="lbl" style="fill:#F7F5F0">verdict  nic_link_down → node-1/nic</text></g>
-</svg><text x="640" y="590" text-anchor="middle" style="font: 600 22px ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace; fill: #555C6A; letter-spacing: .04em">github.com/nareshns2004/fault-tolerant-training-orchestrator</text></svg>
+</svg><text x="640" y="590" text-anchor="middle" style="font: 600 22px ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace; fill: #555C6A; letter-spacing: .04em">github.com/nareshns2004/goodput-fault-tolerant-training-orchestrator</text></svg>

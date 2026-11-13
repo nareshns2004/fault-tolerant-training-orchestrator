@@ -15,7 +15,7 @@ from typing import Any
 from bench.export.record import RECORD_SCHEMA_V, IncidentRecord
 
 SCHEMA_PATH = Path(__file__).resolve().parents[2] / "docs" / "schemas" / "incident.schema.json"
-SCHEMA_ID = "https://github.com/nareshns2004/goodput/blob/main/docs/schemas/incident.schema.json"
+SCHEMA_ID = "https://github.com/nareshns2004/goodput-fault-tolerant-training-orchestrator/blob/main/docs/schemas/incident.schema.json"
 
 
 def incident_record_json_schema() -> dict[str, Any]:

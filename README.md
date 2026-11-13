@@ -6,7 +6,7 @@
   <img alt="goodput. Symptoms are global, causes are local: evidence from the flight recorder, RDMA counters and DCGM converges on one verdict that names the failed NIC, not just the first rank to time out." src="docs/assets/banner-light.svg" width="100%">
 </picture>
 
-[![CI](https://github.com/nareshns2004/fault-tolerant-training-orchestrator/actions/workflows/ci.yml/badge.svg)](https://github.com/nareshns2004/fault-tolerant-training-orchestrator/actions/workflows/ci.yml)
+[![CI](https://github.com/nareshns2004/goodput-fault-tolerant-training-orchestrator/actions/workflows/ci.yml/badge.svg)](https://github.com/nareshns2004/goodput-fault-tolerant-training-orchestrator/actions/workflows/ci.yml)
 [![License](https://img.shields.io/badge/license-Apache--2.0-1D4ED8?style=flat-square)](LICENSE)
 [![Python](https://img.shields.io/badge/python-3.11%20%7C%203.12-1D4ED8?style=flat-square&logo=python&logoColor=white)](pyproject.toml)
 [![Typed](https://img.shields.io/badge/mypy-strict-1D4ED8?style=flat-square)](pyproject.toml)
@@ -24,8 +24,8 @@
 > CPU test harness. **No results have been measured yet**, and this README makes no
 > performance claims. Every number that appears here later will link to a run under
 > [`bench/results/`](bench/results/) with its environment manifest. *goodput* is the
-> project, package and CLI name (PyPI distribution: `goodput-train`); the repository is being
-> renamed from `fault-tolerant-training-orchestrator` to `goodput` (ADR-0007).
+> project, package and CLI name (PyPI distribution: `goodput-train`); the repository is
+> `goodput-fault-tolerant-training-orchestrator` (ADR-0007).
 
 ---
 
@@ -246,7 +246,7 @@ issues in the design are in [`docs/OPEN_QUESTIONS.md`](docs/OPEN_QUESTIONS.md).
 
 goodput is one half of a two-repo portfolio on GPU networking and distributed systems:
 **goodput** (GitHub Project 1) covers *reliability* at scale, and its sibling
-[**kvwire**](https://github.com/nareshns2004/disaggregated-inference-engine) (GitHub Project 2)
+[**kvwire**](https://github.com/nareshns2004/kvwire-disaggregated-inference-engine) (GitHub Project 2)
 covers *efficiency* at scale: RDMA KV-cache transport for disaggregated inference. Both share
 the fault-injection discipline and the real / induced / synthetic labels
 ([ADR-0006](docs/adr/0006-provenance-labels.md)).

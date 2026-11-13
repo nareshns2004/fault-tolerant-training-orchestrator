@@ -3,7 +3,7 @@
 ## Reporting a vulnerability
 
 Please **do not** open a public issue. Report privately through GitHub's
-[private vulnerability reporting](https://github.com/nareshns2004/fault-tolerant-training-orchestrator/security/advisories/new)
+[private vulnerability reporting](https://github.com/nareshns2004/goodput-fault-tolerant-training-orchestrator/security/advisories/new)
 on this repository. We aim to acknowledge reports within 7 days.
 
 Supported versions: the project is pre-release; only the `main` branch receives fixes.

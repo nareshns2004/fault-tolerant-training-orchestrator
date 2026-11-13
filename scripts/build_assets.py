@@ -323,7 +323,7 @@ def architecture(t: dict[str, str]) -> str:
     return svg(w, h, "goodput architecture", desc, css, "\n".join(b), t, defs)
 
 
-REPO = "github.com/nareshns2004/fault-tolerant-training-orchestrator"
+REPO = "github.com/nareshns2004/goodput-fault-tolerant-training-orchestrator"
 
 
 def social(t: dict[str, str], repo: str) -> str:

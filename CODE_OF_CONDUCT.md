@@ -6,5 +6,5 @@ In short: be respectful, assume good faith, critique ideas rather than people, a
 technical disagreement technical.
 
 Report unacceptable behaviour privately to the maintainers through this repository's
-[private reporting form](https://github.com/nareshns2004/fault-tolerant-training-orchestrator/security/advisories/new)
+[private reporting form](https://github.com/nareshns2004/goodput-fault-tolerant-training-orchestrator/security/advisories/new)
 (it reaches the maintainers only). Reports are handled confidentially.
