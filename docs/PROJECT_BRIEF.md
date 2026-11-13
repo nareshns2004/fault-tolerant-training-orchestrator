@@ -113,15 +113,15 @@ B0-tuned.
 | 1 | TTD, hard faults (F01, F08, F16) | p90 ≤ 30 s and max reported (p99 only with ≥ 100 trials) | B0 / B0-tuned watchdog and elastic detection |
 | 2 | TTD, stuck-rank hang (F02, F03) | p90 ≤ 60 s and max reported | B0 / B0-tuned (PG timeout) |
 | 3 | Culprit-rank attribution accuracy, hangs/desync (F02–F04) | ≥ 95%, shown by its 95% lower confidence bound (≥ 60 trials per class) | "First rank to report"; NVRx flight-recorder attribution (B2) |
-| 4 | Fault-class classification | macro-F1 ≥ 0.90 on fault matrix; confusion matrix published | Per-class majority baseline |
+| 4 | Fault-class classification (all Must classes, F01–F16, F18) | macro-F1 ≥ 0.90 on fault matrix; confusion matrix published | Per-class majority baseline |
 | 5 | Straggler detection (≥ 20% slowdown on one GPU/host; F05–F07) | detected ≤ 50 steps, correct rank ≥ 95% (lower confidence bound, as #3) | NVRx straggler detector if adopted as baseline |
-| 6 | False-positive cordons | ≤ 1 per 24 h, or the achieved upper bound reported (≥ 72 h fault-free needed to show it) | — |
-| 7 | TTR, transient fault, in-process path (fault IDs to be fixed, OQ-13) | ≤ 60 s, phase-decomposed | B0 full restart |
-| 8 | TTR, node replacement with peer in-memory restore (F16) | ≤ 3 min, phase-decomposed | B1 restore from durable storage |
-| 9 | Steady-state overhead (monitoring + tiered ckpt) | ≤ 2% step time, with CI | Same config, goodput disabled |
-| 10 | Goodput under fault schedule (≥ 12 h, compressed MTBF) | ≥ 90% and ≥ +10 pts over B0 at the literature-anchored MTBF, reported across an MTBF sweep | B0, B1 |
-| 11 | Recovery correctness | zero duplicated/skipped samples; loss trajectory within stated tolerance of an uninterrupted run | Uninterrupted reference run |
-| 12 | Scale projection | Simulator calibrated on measured phases; projections at 1K/4K/16K GPUs sanity-checked against published ETTR | Literature values (labeled) |
+| 6 | False-positive cordons (fault-free hours; any class) | ≤ 1 per 24 h, or the achieved upper bound reported (≥ 72 h fault-free needed to show it) | — |
+| 7 | TTR, transient fault, in-process path (F01, F02, F03, F11) | ≤ 60 s, phase-decomposed | B0 full restart |
+| 8 | TTR, loss of a node or its fabric attachment (F08, F12, F16): replace from a spare if one exists, otherwise elastic shrink; peer in-memory restore | ≤ 3 min, phase-decomposed | B1 restore from durable storage |
+| 9 | Steady-state overhead (monitoring + tiered ckpt; no fault) | ≤ 2% step time, with CI, reported per tier-0 interval | Same config, goodput disabled |
+| 10 | Goodput under fault schedule (≥ 12 h, compressed MTBF; Must classes) | ≥ 90% and ≥ +10 pts over B0 at the literature-anchored MTBF, reported across an MTBF sweep | B0, B1 |
+| 11 | Recovery correctness (every recovered trial of #7, #8, #10) | zero duplicated/skipped samples; loss trajectory within stated tolerance of an uninterrupted run | Uninterrupted reference run |
+| 12 | Scale projection (simulator; no injected faults) | Simulator calibrated on measured phases; projections at 1K/4K/16K GPUs sanity-checked against published ETTR | Literature values (labeled) |
 
 ## 7. Non-goals
 
@@ -135,28 +135,37 @@ B0-tuned.
 
 - **Must:** faultlab for process/hang/desync/straggler/NIC-link/storage faults; flight-
   recorder-based culprit attribution; DCGM + RDMA-counter + kernel-log collectors; topology
-  model; rules classifier; policy engine with in-process re-init and node replacement;
+  model; rules classifier; policy engine with in-process re-init and node replacement
+  (or elastic shrink preserving global batch when no spare exists, ADR-0007);
   tiered checkpoint (host memory + peer replica + durable async); full evaluation vs B0/B1;
   dataset export; write-up.
-- **Should:** elastic shrink preserving global batch; Grafana dashboards; goodput simulator;
+- **Should:** Grafana dashboards; goodput simulator;
   NVRx as baseline or component; congestion/PFC fault class.
 - **Stretch:** silent data corruption (SDC) detection via cross-replica checksums / grad-norm
-  anomaly; raw-verbs checkpoint replicator shared with the inference repo's transport;
+  anomaly; raw-verbs checkpoint replicator shared with kvwire's transport;
   HA controller.
 
 ## 9. Related artifacts
 
-Per [ADR-0005](adr/0005-dataset-export-location-and-contract.md), exactly one model and one Space:
+goodput is **GitHub Project 1** of a two-repo portfolio; its sibling is **kvwire** (GitHub
+Project 2, RDMA KV-cache transport for disaggregated inference). Per
+[ADR-0005](adr/0005-dataset-export-location-and-contract.md) as amended by
+[ADR-0007](adr/0007-open-questions-resolved.md), goodput feeds exactly two Hugging Face
+artifacts (**Hugging Face Project 1**), both built only from data this repo produces:
 
-- **Dataset export** (`bench/export/`, M3 onward): one record per incident with ground
-  truth from the ledger, split by run and held-out topology; published with a dataset card.
-- **`qwen3-nccl-rca-lora` (Hugging Face model):** trained on incident bundles (events +
-  verdict + evidence) from the export. Plugs back in behind `signals.Classifier` and must
-  beat the rules classifier on the same held-out set. It recommends, never acts.
-- **`nccl-incident-rca` (Hugging Face Space):** interactive demo of signature matching
-  (from M3's signature catalogue) and the model.
-- **kvwire** (sibling repo, disaggregated inference): shares the fault-injection discipline
-  and possibly an RDMA transport library for the tier-1 replicator (Stretch).
+- **Incident export** (`bench/export/`, M3 onward): one `IncidentRecord` per incident
+  (`docs/schemas/incident.schema.json`), ground truth from the ledger, split by run, seed,
+  node and held-out topology. It is *not* a separate Hugging Face dataset: the records ship
+  inside the model repo.
+- **`qwen3-nccl-rca-lora` (Hugging Face model, slow tier):** Qwen3 + LoRA producing a
+  structured verdict that cites evidence refs, so every answer is checked automatically
+  against the ledger. Ships only if it beats the rules classifier, the zero-shot base model
+  and the majority baseline on the same held-out split. Plugs back in behind
+  `signals.Classifier`; it recommends, never acts.
+- **`nccl-incident-rca` (Hugging Face Space, fast tier):** signature matching from M3's
+  catalogue, with the model shown only once it passes its gates.
+- **kvwire** shares the fault-injection discipline, the provenance labels (ADR-0006) and,
+  as a Stretch goal, an RDMA transport for the tier-1 replicator.
 
 ## 10. Risks and mitigations
 

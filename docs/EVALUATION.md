@@ -27,7 +27,8 @@ B0, B0-tuned, B1 and B2 (resolves OQ-3).
 - **Recovery phases**: TTR is always reported **decomposed**: detect · abort/drain ·
   reschedule/placement · process start · CUDA init · NCCL communicator init · checkpoint
   load (by tier) · compile/warmup · first step. For baselines the phases come from
-  timestamps in the training script plus parsed torchrun/NCCL logs (OQ-10).
+  a wrapper's wall-clock timestamps plus parsed torchrun/NCCL logs; phases a stock
+  baseline cannot expose are reported merged, never estimated (ADR-0007, OQ-10).
 
 Headline targets #1, #2, #7, #8 are stated in TTD/TTR.
 
@@ -117,7 +118,8 @@ A target is only "met" if the stated sample size can actually demonstrate it.
 
 K for every system is τ ≈ √(2·C·MTBF) (Young/Daly) with measured C. *Worked example,
 calculation only:* C = 30 s and a compressed MTBF of 1 h give τ ≈ 465 s (≈ 8 min). For the
-overhead metric (#9), state the tier-0 snapshot frequency explicitly (OQ-14).
+overhead metric (#9), the tier-0 snapshot interval is configuration: report overhead per
+interval across a sweep (at least every step, every 10 steps, and τ) (ADR-0007, OQ-14).
 
 ## 5. Reporting standard
 

@@ -1,6 +1,6 @@
 # ADR-0004: Repository layout and package boundaries
 
-- Status: Proposed
+- Status: Accepted (2026-11-13)
 - Date: 2026-09-28
 - Deciders: maintainers
 

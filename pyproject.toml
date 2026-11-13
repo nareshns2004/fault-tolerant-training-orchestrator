@@ -3,7 +3,7 @@ requires = ["hatchling>=1.25"]
 build-backend = "hatchling.build"
 
 [project]
-name = "goodput"
+name = "goodput-train"  # PyPI name; import package and CLI stay `goodput` (ADR-0007)
 version = "0.0.1"
 description = "Cross-layer fault attribution and minimal-blast-radius recovery for multi-node LLM training."
 readme = "README.md"

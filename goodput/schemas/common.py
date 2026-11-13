@@ -20,7 +20,7 @@ class Provenance(StrEnum):
 
     For telemetry, the label describes the *value*: a counter genuinely read from
     hardware during an induced fault is ``real``; the fault's own provenance lives on
-    the ``FaultInjection``. (Proposed interpretation — see docs/OPEN_QUESTIONS.md OQ-2.)
+    the ``FaultInjection``. See docs/adr/0006-provenance-labels.md.
     """
 
     REAL = "real"

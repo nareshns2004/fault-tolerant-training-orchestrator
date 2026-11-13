@@ -5,7 +5,8 @@ contributor). Human contributors should start with [CONTRIBUTING.md](CONTRIBUTIN
 
 ## What this repo is
 
-**goodput** (repository: `fault-tolerant-training-orchestrator`) is a cross-layer
+**goodput** (GitHub Project 1; repository being renamed from
+`fault-tolerant-training-orchestrator` to `goodput`; PyPI distribution `goodput-train`) is a cross-layer
 reliability system for multi-node LLM training. It injects realistic faults, detects them
 fast, attributes them to the right component (rank, GPU, NIC, port, link, node, storage),
 and recovers with the smallest possible blast radius using topology-aware, tiered
@@ -13,9 +14,24 @@ checkpoint-restart. The claim it exists to test with measured numbers: **higher 
 goodput under faults than stock PyTorch tooling, because attribution is faster and more
 precise, not because we restart harder.**
 
-The labelled incidents it produces feed one downstream Hugging Face model and one demo
-Space (see [ADR-0005](docs/adr/0005-dataset-export-location-and-contract.md)). The model plugs
-back in behind `goodput.signals.Classifier` and only *recommends*; it never acts.
+### Where it sits
+
+goodput is one of two repos in one portfolio; keep them consistent:
+
+- **GitHub Project 1: goodput** (this repo): reliability at scale.
+- **GitHub Project 2: kvwire** (`disaggregated-inference-engine`, being renamed `kvwire`):
+  RDMA KV-cache transport for disaggregated inference; efficiency at scale.
+- **Hugging Face Project 1**, built only from this repo's data: model
+  `qwen3-nccl-rca-lora` (slow tier, structured verdict citing evidence refs; train/eval data
+  ships *inside* the model repo) and Space `nccl-incident-rca` (fast tier, signature matching).
+- **Hugging Face Project 2**, built only from kvwire's data: dataset `rdma-kv-transfer-traces`
+  and Space `disagg-kv-explorer`.
+
+There is exactly one HF model and one HF dataset across the portfolio, no third repo, and no
+encoder classifier ([ADR-0005](docs/adr/0005-dataset-export-location-and-contract.md),
+[ADR-0007](docs/adr/0007-open-questions-resolved.md)). The model plugs back in behind
+`goodput.signals.Classifier` and only *recommends*; it never acts. The export contract is
+`bench/export/record.py` → `docs/schemas/incident.schema.json` (`make schemas`).
 
 ## Maintainers and calibration
 
@@ -90,6 +106,7 @@ make check            # lint + typecheck + test (what CI runs)
 make lint / fmt       # ruff check + format check / auto-fix
 make typecheck        # mypy --strict on goodput, faultlab, bench
 make test             # CPU-only unit + integration tests
+make schemas          # regenerate docs/schemas/*.json (a test fails on drift)
 make test-gpu         # single-node GPU tests
 make env-manifest     # (stub) writes docs/ENVIRONMENT.md generated section + bench manifest
 make topo             # (stub) topology discovery -> artifacts/topology.json
@@ -110,12 +127,23 @@ make report RUN=<run_id>          # (stub) regenerates plots/tables from raw res
 - Config is declarative YAML validated by schema; no magic env vars without docs.
 - Commits: conventional commits, DCO sign-off; one logical change per commit; message
   states *why*.
-- Personal, local-only notes go in `.local/` (gitignored), never in tracked files.
+- Personal, local-only notes go in `.local/` or `CLAUDE.local.md` (both gitignored), never
+  in tracked files.
+
+## Slash commands
+
+- `/plan-milestone <M>`: writes a plan to `.local/plans/` and stops for approval.
+- `/drill [component]`: five interview questions on a finished component, graded against
+  the repo.
 
 ## Current state
 
 - Milestone: **M1a** (scaffold, CPU harness, prior-art gate, environment). Update this
   line when it changes.
-- Repo skeleton in place (schemas, interfaces, CPU tests, CI); no measurements yet.
-- Open decisions: ADR-0001–0004 are *Proposed*; ADR-0005 and ADR-0006 are *Accepted*. Remaining review
-  findings are in `docs/OPEN_QUESTIONS.md`.
+- Repo skeleton in place (schemas, interfaces, CPU tests, CI, incident-record contract);
+  no measurements yet.
+- ADRs: 0001, 0002, 0004–0007 *Accepted*; 0003 *Proposed* until the prior-art gap analysis
+  (`[OWNER-CORE]`) is written.
+- Only open question: OQ-1 (target hardware, `docs/ENVIRONMENT.md`). M1a exit needs it and
+  the gap analysis.
+- Next public artifact: the B0 SIGKILL TTR phase decomposition (M1b).
